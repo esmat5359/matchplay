@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Arena · Matchplay</title><meta name="description" content="Every Matchplay round on GenLayer Studionet: open, playing and finished."><link rel="icon" href="./favicon.svg" type="image/svg+xml"></head>
+<body><main>
+<header class="page-head"><div class="wrap"><div><span class="kicker">The arena</span><h1>Every round, live from the contract.</h1><p>Open rounds are taking entries. Playing rounds are being judged match by match. Finished rounds show who earned what.</p></div><img class="mochi-float" src="./img/mochi-head.webp" alt="" width="110"></div></header>
+<section style="padding-top:36px"><div class="wrap">
+  <div class="filters" id="filters" role="group" aria-label="Filter rounds"><button aria-pressed="true" data-f="all">All</button><button aria-pressed="false" data-f="0">Open</button><button aria-pressed="false" data-f="1">Playing</button><button aria-pressed="false" data-f="2">Done</button><button aria-pressed="false" data-f="3">Cancelled</button><span style="flex:1"></span><button id="mine-toggle" aria-pressed="false">My rounds</button><a class="btn primary sm" href="./create.html">Host a round</a></div>
+  <div class="rounds" id="list"></div>
+  <div class="row" style="justify-content:center;margin-top:30px"><button class="btn ghost" id="more" hidden>Load more</button></div>
+</div></section>
+</main><script type="module" src="./src/pages/rounds.js"></script></body></html>

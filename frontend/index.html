@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matchplay · Head-to-head rounds judged on GenLayer</title>
+<meta name="description" content="Matchplay is an Intelligent Contract on GenLayer. Entrants pay a bond, every pair meets once, an AI judge reads each match twice, and the prize pays out by points.">
+<meta property="og:title" content="Matchplay on GenLayer"><meta property="og:description" content="Two entries. Two orders. One honest verdict."><meta property="og:image" content="./img/hero-arena.jpg">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<main>
+<section class="hero" id="top" style="padding:0">
+  <div class="wrap"><div class="hero-copy">
+    <span class="eyebrow">GenLayer Intelligent Contract · Studionet</span>
+    <h1>Two entries.<br>Two orders.<br><em>One honest verdict.</em></h1>
+    <p class="lead">Host a round with a prize and a mission. Entrants put a bond behind their pitch. Every pair meets once, an AI judge reads each match twice with the order swapped, and the contract pays by points.</p>
+    <div class="cta"><a class="btn orange lg" href="./rounds.html">Open the arena</a><a class="btn light lg" href="./create.html">Host a round</a><a class="btn light lg" href="#demo">Watch the demo</a></div>
+  </div></div>
+  <div class="hero-stats" id="hero-stats">
+    <div class="glass" data-tilt="14"><b data-stat="rounds">–</b><span>rounds hosted</span></div>
+    <div class="glass" data-tilt="14"><b data-stat="judged">–</b><span>matches judged</span></div>
+    <div class="glass" data-tilt="14"><b data-stat="locked">–</b><span>GEN in play now</span></div>
+  </div>
+</section>
+
+<section id="judge">
+  <div class="wrap judge-demo">
+    <div class="reveal"><div class="duel" id="duel" data-tilt="3"><span class="lamp">Reading 1 · A then B</span><div class="pcard a"><small>Entry</small><b>A</b><small>Pitch + evidence</small></div><div class="pcard b"><small>Entry</small><b>B</b><small>Pitch + evidence</small></div><div class="verdict" id="duel-verdict">Same winner in both orders: a decisive result.</div></div></div>
+    <div class="reveal">
+      <span class="kicker">How a match is judged</span>
+      <h2>The judge reads every match twice.</h2>
+      <p class="muted">Models can favour whoever comes first. So Matchplay shows the pair in one order, then swaps them. A winner only counts when both readings agree.</p>
+      <div class="bars" id="fit-bars"></div>
+      <ul class="rules">
+        <li><b>1</b><span><strong>The bar comes first.</strong> An entry earns something only when it clears the host's bar on its own. The lower of its two fit scores counts.</span></li>
+        <li><b>2</b><span><strong>Both clear it?</strong> The winner must be the same in both orders. If the order changes the winner, the match is a tie.</span></li>
+        <li><b>3</b><span><strong>Cheating costs the bond.</strong> A page that tries to steer the judge earns a strike, and the bond is forfeited.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;border-block:1px solid var(--line)" id="lifecycle">
+  <div class="wrap">
+    <div class="section-head reveal"><span class="kicker">One round, four moves</span><h2>From mission to payout, all on chain.</h2><p>Anyone can run the steps that need no trust. Only the host decides who is turned away, and only before the round starts.</p></div>
+    <div class="life">
+      <div class="step reveal" data-tilt="9"><div class="n">1</div><h3>Host opens</h3><p>Attach the prize, set the mission, the bond, the bar and the clocks.</p></div>
+      <div class="step reveal" data-tilt="9"><div class="n">2</div><h3>Entrants join</h3><p>Pitch plus an evidence link, and exactly the entry bond. 3 to 8 entries.</p></div>
+      <div class="step reveal" data-tilt="9"><div class="n">3</div><h3>Matches run</h3><p>Anyone triggers the next match. Each pair meets once, each is read twice.</p></div>
+      <div class="step reveal" data-tilt="9"><div class="n">4</div><h3>Payout</h3><p>Points times the price of a point, plus the bond back. What nobody earns returns to the host.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="money">
+  <div class="wrap showcase">
+    <div class="reveal"><div class="cube-stage" aria-hidden="true"><div class="bigcube"><i><img src="./img/genlayer-symbol-white.svg" alt=""></i><i>Order 1</i><i>Bar</i><i>Order 2</i><i>Points</i><i>Bond</i></div><div class="cube-shadow"></div></div></div>
+    <div class="reveal">
+      <span class="kicker">Where the money goes</span><h2>Try the numbers before you host.</h2>
+      <p class="muted">A match is worth 2 points. A round has 2 × pairs points, so one point is worth prize ÷ points.</p>
+      <div class="card" style="padding:20px">
+        <div class="three"><div class="field"><label for="c-prize">Prize (GEN)</label><input id="c-prize" type="number" min="0.002" step="0.1" value="1"></div><div class="field"><label for="c-n">Entries</label><input id="c-n" type="number" min="3" max="8" value="5"></div><div class="field"><label for="c-bond">Bond (GEN)</label><input id="c-bond" type="number" min="0.001" step="0.01" value="0.05"></div></div>
+        <div class="kpis" id="calc" style="margin:6px 0 0"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:20px" id="live">
+  <div class="wrap">
+    <div class="section-head row" style="justify-content:space-between;max-width:none"><div class="reveal"><span class="kicker">Live from the contract</span><h2 style="margin:0">Latest rounds</h2></div><a class="btn ghost" href="./rounds.html">See all rounds →</a></div>
+    <div class="rounds" id="latest"></div>
+  </div>
+</section>
+
+<section id="demo" style="background:var(--ink);color:#fff;position:relative;overflow:hidden">
+  <div class="wrap grid g2" style="grid-template-columns:1.5fr 1fr;align-items:center;gap:44px">
+    <div class="reveal"><div class="video-card" data-video><video preload="none" playsinline controls poster="./media/poster.jpg" aria-label="Matchplay demo video"><source src="./media/matchplay-demo.mp4" type="video/mp4"></video><button class="play-cover" style="background-image:url(./media/poster.jpg)" aria-label="Play the demo video"><span class="play-btn"></span><span class="play-label">Watch the walkthrough<small>Connect, host, enter, judge, claim</small></span></button></div></div>
+    <div class="reveal"><span class="kicker" style="color:#bdbdff">Video demo</span><h2>See a whole round, start to payout.</h2><p style="color:#c9caf0">The recording uses the app's demo mode: a pretend wallet and a simulated network, so nothing real is sent. The screens and the flow are the real ones.</p><div class="row"><a class="btn orange" href="./demo.html">Open the demo page</a><a class="btn light" href="./index.html?demo=1">Try demo mode</a></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap grid g2" style="align-items:center;gap:44px">
+    <div class="reveal mochi-tilt" style="display:grid;place-items:center"><img class="mochi-3d" src="./img/mochi.webp" alt="Mochi, the GenLayer mascot, holding a gold medal" width="255" height="657" style="width:min(300px,70%);height:auto"></div>
+    <div class="reveal"><span class="kicker">Built on GenLayer</span><h2>An Intelligent Contract, not a backend.</h2>
+      <p class="muted">The judge, the rules and the money all live in one contract on GenLayer Studionet. This site only reads it and sends your signed calls.</p>
+      <div class="card" style="padding:18px"><small class="muted" style="font-weight:700;letter-spacing:.08em;text-transform:uppercase">Contract on Studionet</small><p class="mono" id="home-addr" style="word-break:break-all;margin:6px 0 12px"></p><div class="row"><button class="btn ghost sm" id="home-copy">Copy</button><a class="btn ghost sm" id="home-explorer" target="_blank" rel="noopener">Explorer ↗</a><a class="btn ghost sm" id="home-gh" target="_blank" rel="noopener">Source on GitHub ↗</a><a class="btn primary sm" href="./docs.html">Read the docs</a></div></div>
+    </div>
+  </div>
+</section>
+</main>
+<script type="module" src="./src/pages/home.js"></script>
+</body>
+</html>

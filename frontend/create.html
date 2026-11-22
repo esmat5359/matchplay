@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Host a round · Matchplay</title><meta name="description" content="Open a Matchplay round on GenLayer Studionet: set the mission, the prize, the bond and the bar."><link rel="icon" href="./favicon.svg" type="image/svg+xml"></head>
+<body><main>
+<header class="page-head"><div class="wrap"><div><span class="kicker">Host</span><h1>Open a round.</h1><p>The GEN you attach is the prize. Entrants put a bond behind their pitch. Whatever nobody earns comes back to you.</p></div><img class="mochi-float" src="./img/mochi-head.webp" alt="" width="110"></div></header>
+<section style="padding-top:36px"><div class="wrap layout">
+  <div class="card" style="padding:30px">
+    <div class="field" id="g-title"><label for="f-title">Title <span class="count" id="c-title"></span></label><input id="f-title" type="text" maxlength="90" placeholder="Best first-hour experience for new builders"><p class="err" hidden></p></div>
+    <div class="field" id="g-mission"><label for="f-mission">Mission <span class="count" id="c-mission"></span></label><textarea id="f-mission" maxlength="1400" style="min-height:150px" placeholder="What are entrants competing at? Say what a good answer looks like. The judge scores every pitch against this text."></textarea><span class="hint">This is the only thing the judge measures entries against. Be concrete.</span><p class="err" hidden></p></div>
+    <div class="two"><div class="field" id="g-prize"><label for="f-prize">Prize (GEN)</label><input id="f-prize" type="text" inputmode="decimal" value="1"><span class="hint">Attached to the transaction. At least 0.002.</span><p class="err" hidden></p></div>
+      <div class="field" id="g-bond"><label for="f-bond">Entry bond (GEN)</label><input id="f-bond" type="text" inputmode="decimal" value="0.05"><span class="hint">Each entrant pays exactly this. At least 0.001.</span><p class="err" hidden></p></div></div>
+    <div class="two" id="g-entries"><div class="field"><label for="f-min">Minimum entries</label><input id="f-min" type="number" min="3" max="8" value="3"></div><div class="field"><label for="f-max">Maximum entries</label><input id="f-max" type="number" min="3" max="8" value="5"></div></div><p class="err" id="e-entries" hidden></p>
+    <div class="three"><div class="field" id="g-ew"><label for="f-ew">Entry window</label><div class="row" style="flex-wrap:nowrap"><input id="f-ew" type="number" min="1" value="2"><select id="u-ew"><option value="60">minutes</option><option value="3600">hours</option><option value="86400" selected>days</option></select></div><p class="err" hidden></p></div>
+      <div class="field" id="g-pw"><label for="f-pw">Playing window</label><div class="row" style="flex-wrap:nowrap"><input id="f-pw" type="number" min="1" value="2"><select id="u-pw"><option value="60">minutes</option><option value="3600">hours</option><option value="86400" selected>days</option></select></div><p class="err" hidden></p></div>
+      <div class="field" id="g-fit"><label for="f-fit">Bar (0 to 90)</label><input id="f-fit" type="number" min="0" max="90" step="5" value="50"><span class="hint">Fit score an entry needs to earn.</span><p class="err" hidden></p></div></div>
+    <label class="switch" style="margin:6px 0 20px"><input type="checkbox" id="f-ev"> Require a link to evidence with every entry</label>
+    <ul class="checklist" id="r-check"></ul>
+    <div class="row" style="margin-top:18px"><button class="btn primary lg" id="f-send">Open the round</button><span class="tiny muted" id="f-note"></span></div>
+    <p class="tiny muted" style="margin-top:12px">Everything is checked here first. On Studionet a refused payable call keeps the attached GEN inside the contract, outside its books.</p>
+  </div>
+  <aside class="side"><div class="preview" data-tilt="4"><span class="kicker">Live preview</span><div class="big" id="pv-unit">–</div><p class="tiny muted" style="margin:0 0 10px">GEN per point, for a full round</p><table><thead><tr><th>Entries</th><th>Matches</th><th>Points</th><th>One point</th><th>Best case</th></tr></thead><tbody id="pv-rows"></tbody></table></div>
+    <div class="card"><h3>Tips for a good round</h3><ul class="checklist"><li>State what a strong answer looks like in the mission.</li><li>Set a bar of 50 or more so weak entries earn nothing.</li><li>Ask for evidence when claims can be checked on a page.</li><li>Give players time: matches run one at a time.</li></ul></div></aside>
+</div></section></main>
+<script type="module" src="./src/pages/create.js"></script></body></html>

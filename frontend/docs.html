@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Documentation · Matchplay</title><meta name="description" content="Full documentation for Matchplay on GenLayer: concepts, lifecycle, judging, money, contract API, wallet guide and Studionet quirks."><link rel="icon" href="./favicon.svg" type="image/svg+xml"></head>
+<body><main>
+<header class="page-head"><div class="wrap"><div><span class="kicker">Documentation</span><h1>Everything about Matchplay.</h1><p>How a round works, how matches are judged, where the money goes, every contract method, and the Studionet details worth knowing.</p></div><img class="mochi-float" src="./img/mochi-head.webp" alt="" width="110"></div></header>
+<div class="wrap docs">
+<nav class="toc" aria-label="Documentation sections">
+  <h4>Start</h4><a href="#overview">Overview</a><a href="#quickstart">Quick start</a><a href="#wallet">Wallet &amp; network</a>
+  <h4>Concepts</h4><a href="#concepts">Key ideas</a><a href="#lifecycle">Round lifecycle</a><a href="#judging">How matches are judged</a><a href="#money">Money &amp; payouts</a><a href="#limits">Limits &amp; rules</a>
+  <h4>Reference</h4><a href="#api">Contract API</a><a href="#errors">Messages &amp; errors</a><a href="#quirks">Studionet quirks</a>
+  <h4>Build &amp; run</h4><a href="#frontend">This web app</a><a href="#deploy">Deploy</a><a href="#security">Security notes</a><a href="#faq">FAQ</a><a href="#glossary">Glossary</a>
+</nav>
+<article class="prose">
+
+<section id="overview"><h2>Overview</h2>
+<p><b>Matchplay</b> is an Intelligent Contract on <a href="https://www.genlayer.com" target="_blank" rel="noopener">GenLayer</a>. A host opens a round with a prize and a mission. Between 3 and 8 entrants pay a bond and pitch. Every pair of entries meets exactly once. For each match the contract asks an AI judge to read both entries <em>twice</em>, once in each order, and the network's validators must agree on the result before it is stored. Points decide the payout.</p>
+<p>This web app is a thin client. It reads the contract through GenLayer's JavaScript SDK, checks your input against the same rules the contract uses, and sends your signed calls through your own wallet. It holds no keys and no funds.</p>
+<div class="callout info"><b>Where it runs</b><p>GenLayer Studionet, chain id <code>61999</code>, currency GEN. Contract: <code id="d-addr"></code></p></div>
+</section>
+
+<section id="quickstart"><h2>Quick start</h2>
+<h3>Take part in a round</h3>
+<ol><li>Press <b>Connect wallet</b>, pick your wallet, and approve. If the wallet is on another network the app asks it to switch to Studionet (and to add the network first when needed).</li>
+<li>Open the <a href="./rounds.html">Arena</a> and choose a round that is <em>Open</em>.</li>
+<li>Fill the entry form: a name, a pitch of 40 to 600 characters and, if the round asks for it, one public evidence link. The form shows what is wrong before you can send.</li>
+<li>Confirm. Your wallet attaches exactly the entry bond. Wait for the validators (usually under a minute).</li>
+<li>When the round is done, open <a href="./account.html">My account</a> and press <b>Claim</b>.</li></ol>
+<h3>Host a round</h3>
+<ol><li>Open <a href="./create.html">Host a round</a>. Write a title and a mission. The mission is the only text the judge measures entries against, so be concrete.</li>
+<li>Set the prize (the GEN you attach), the entry bond, how many entries you need, the two time windows and the bar.</li>
+<li>The preview shows what one point will be worth. Press <b>Open the round</b> and confirm in your wallet.</li>
+<li>Entrants join until the entry window closes, or until you start early once the minimum is reached.</li></ol>
+<h3>Run the matches</h3>
+<p>Anyone can press <b>Run the next match</b> on a playing round. Each press judges one match. When all are played (or the playing time ends) anyone can press <b>Finish the round</b>.</p>
+<div class="callout ok"><b>No wallet? Try demo mode</b><p><a href="./index.html?demo=1">Demo mode</a> runs the whole app against a simulated network and a pretend wallet. Nothing real is sent. Use <em>Exit demo</em> in the orange bar to leave.</p></div>
+</section>
+
+<section id="wallet"><h2>Wallet &amp; network</h2>
+<h3>How the wallet connection works</h3>
+<p>Matchplay finds wallets with <b>EIP-6963</b> (multi injected provider discovery). Every installed wallet announces itself with a name and an icon, and the connect window lists them. You pick one, and from then on every request goes to that wallet only, through the standard <b>EIP-1193</b> interface. With several wallets installed there is no tug of war over <code>window.ethereum</code>. A wallet that does not announce itself is offered as <em>Browser wallet</em>.</p>
+<h3>Switching to Studionet</h3>
+<p>If your wallet is on another chain, an orange bar appears under the header and the network pill says <em>Wrong network</em>. Press <b>Switch network</b>: the app calls <code>wallet_switchEthereumChain</code> and, when the wallet does not know Studionet, <code>wallet_addEthereumChain</code> with these values:</p>
+<table><tr><th>Field</th><th>Value</th></tr><tr><td>Network name</td><td>GenLayer Studio Network</td></tr><tr><td>Chain id</td><td>61999 (<code>0xf22f</code>)</td></tr><tr><td>RPC URL</td><td><code>https://studio.genlayer.com/api</code></td></tr><tr><td>Currency</td><td>GEN (18 decimals)</td></tr></table>
+<p>Any action that sends a transaction checks the network again first and asks for the switch if needed, so a wrong network never reaches the contract.</p>
+<h3>Disconnecting</h3>
+<p>The wallet menu (your address in the header) has <b>Disconnect</b>. EIP-1193 has no standard disconnect call, so the app does everything that is possible: it asks the wallet to revoke this site's account permission (<code>wallet_revokePermissions</code>, supported by MetaMask and several others), clears its own session and remembers your choice so the page does not reconnect silently on the next visit. Wallets that ignore the revoke request still end the session here; you can remove the site from the wallet's connected sites list too.</p>
+<p>The app also follows the wallet: changing account or network in the wallet updates the page at once.</p>
+</section>
+
+<section id="concepts"><h2>Key ideas</h2>
+<table><tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Round</td><td>One competition: a mission, a prize, a bond, a bar and two clocks.</td></tr>
+<tr><td>Host</td><td>The address that opened the round and attached the prize.</td></tr>
+<tr><td>Entry</td><td>A name, a pitch and an optional evidence link, backed by the entry bond. One per address.</td></tr>
+<tr><td>Bond</td><td>A deposit paid with the entry. Refunded after the round, unless the entry is struck.</td></tr>
+<tr><td>Match</td><td>One pair of entries. Every pair meets once, in a fixed order, so n entries give n×(n−1)÷2 matches.</td></tr>
+<tr><td>Points</td><td>A match is worth 2: 2 to the winner, 1 each for a tie, 0 when nobody clears the bar.</td></tr>
+<tr><td>Bar</td><td>The fit score (0 to 90) an entry has to reach on its own to earn from a match.</td></tr>
+<tr><td>Strike</td><td>The judge found an evidence page that tries to steer it. Final: no more points, bond forfeited.</td></tr>
+<tr><td>Credit</td><td>Money the contract owes an address. It stays bookkeeping until that address calls <code>claim</code>.</td></tr></table>
+</section>
+
+<section id="lifecycle"><h2>Round lifecycle</h2>
+<table><tr><th>State</th><th>What can happen</th><th>Who</th></tr>
+<tr><td><span class="badge open">Open</span></td><td>Entries join or withdraw. The host tops up the prize or removes an entry (bond refunded).</td><td>entrants, host</td></tr>
+<tr><td></td><td><code>start_round</code>: closes entries and fixes the schedule. Needs the minimum number of entries. Allowed when the entry time is over, when the round is full, or by the host at any time.</td><td>anyone / host</td></tr>
+<tr><td></td><td><code>cancel_round</code>: everything goes back. The host any time; anyone once the entry time is over without enough entries.</td><td>host / anyone</td></tr>
+<tr><td><span class="badge play">Playing</span></td><td><code>play_next</code> judges the next match in the fixed order, until all are played or the playing time ends.</td><td>anyone</td></tr>
+<tr><td></td><td><code>finalize_round</code>: after the last match, or once the playing time is over. Matches nobody ran earn nothing.</td><td>anyone</td></tr>
+<tr><td><span class="badge done">Done</span></td><td>Every entry and the host are credited. Winners and the host <code>claim</code>.</td><td>each address</td></tr>
+<tr><td><span class="badge off">Cancelled</span></td><td>The prize is credited to the host and each bond to its owner.</td><td>each address</td></tr></table>
+<p>The match order is fixed: (0,1) (0,2) … (1,2) (1,3) … so nobody can pick an easy opponent. <code>schedule_of(n)</code> returns the full order for n entries.</p>
+</section>
+
+<section id="judging"><h2>How matches are judged</h2>
+<h3>Two readings, swapped</h3>
+<p>For each match the judge is asked twice. Reading 1 shows entry A first, then B. Reading 2 shows B first, then A. In each reading the judge rates each entry against the mission with one level from 0 to 4 (stored as a fit of 0, 25, 50, 75 or 100) and names a winner or a tie. An entry's fit is the <b>lower</b> of its two readings.</p>
+<h3>Deciding the result</h3>
+<table><tr><th>Situation</th><th>Result</th></tr>
+<tr><td>Neither entry reaches the bar</td><td>Nobody earns (0 points each)</td></tr>
+<tr><td>Only one reaches the bar</td><td>That entry wins, whatever the winner was in the readings. The bar always wins.</td></tr>
+<tr><td>Both reach it, same winner in both orders</td><td>That entry wins (2 points)</td></tr>
+<tr><td>Both reach it, the order changes the winner</td><td>Tie (1 point each)</td></tr></table>
+<h3>Evidence pages and strikes</h3>
+<p>If an entry has an evidence link, the contract fetches the page and gives the judge the first 1,500 characters of its visible text. A page shorter than 20 characters counts as unreadable. If the page text tries to steer the judge (for example telling it to ignore the instructions or to rate the entry as perfect), the entry gets a <b>strike</b>: its page is withheld from the judge and a fingerprint of the page is stored. A strike is final. The entry can no longer score, matches it already played are re-scored without it, and its bond goes to the host. If both pages in a match steer the judge, nobody earns and the model is not asked at all. Names and pitches are checked for the same thing when an entry is made, and are refused outright.</p>
+<h3>Unreadable pages</h3>
+<p>When a page cannot be read, the match stays pending and can be run again after two minutes. After 3 tries the match is voided: neither entry earns and the round moves on.</p>
+<h3>Consensus</h3>
+<p>The leader's result is checked by the other validators, who judge the match again. They compare <b>exactly</b>: the strike flags, unreadable pages, both fits, the winner of each order, the result and the page fingerprints. Only the judge's one-line reasons may differ. A single difference means the validators refuse the result, and the transaction ends as <em>UNDETERMINED</em> with no change to the contract. You can simply run it again (see <a href="#quirks">Studionet quirks</a>).</p>
+</section>
+
+<section id="money"><h2>Money &amp; payouts</h2>
+<pre><code>matches        = n × (n − 1) ÷ 2
+points         = 2 × matches
+price of point = pool ÷ points           (integer division, in wei)
+payout(entry)  = points(entry) × price + bond          (not struck)
+host gets back = pool − Σ points × price + bonds of struck entries</code></pre>
+<p><b>Example.</b> A 1 GEN prize with 5 entries and a 0.05 GEN bond: 10 matches, 20 points, 0.05 GEN per point. An entry that wins all 4 of its matches takes 8 points = 0.4 GEN plus its 0.05 GEN bond. If some matches earn nothing, that GEN returns to the host.</p>
+<p>While a round is open the price of a point is an <em>estimate</em> for the entries so far (at least the minimum number). It becomes final when the round starts. <code>top_up</code> raises the prize only while the round is open, so nobody can change the stakes after the matches begin.</p>
+<p><b>Ranking</b> is by points, then decisive wins, then the earlier entry. Struck entries have no rank. All credits are bookkeeping until <code>claim</code> sends them out; the <a href="./ledger.html">Ledger</a> page proves that paid in = sent out + owed + locked.</p>
+</section>
+
+<section id="limits"><h2>Limits &amp; rules</h2>
+<table><tr><th>What</th><th>Rule</th></tr>
+<tr><td>Title</td><td>3 to 60 characters</td></tr><tr><td>Mission</td><td>30 to 1000 characters</td></tr>
+<tr><td>Entry name</td><td>2 to 40 characters</td></tr><tr><td>Pitch</td><td>40 to 600 characters, at least 20 letters or digits, and no two entries with the same pitch</td></tr>
+<tr><td>Evidence link</td><td>One public http(s) link, up to 300 characters, ASCII only. No logins in the link, no private or local hosts, no IP-style hosts, only ports 80/443. The same page cannot back two entries.</td></tr>
+<tr><td>Entries</td><td>3 to 8; the minimum cannot be above the maximum</td></tr>
+<tr><td>Entry bond</td><td>At least 0.001 GEN; entrants pay exactly the bond</td></tr>
+<tr><td>Prize</td><td>At least 0.002 GEN, and enough that one point is worth more than 0 for a full round</td></tr>
+<tr><td>Windows</td><td>Entry and playing windows: 1 minute to 30 days each</td></tr>
+<tr><td>Bar</td><td>0 to 90</td></tr>
+<tr><td>Removal reason</td><td>3 to 160 characters</td></tr>
+<tr><td>Listing pages</td><td>At most 50 rows per call</td></tr></table>
+<p>Text is cleaned the same way everywhere: invisible characters are removed, spacing is collapsed, and angle brackets become parentheses. The app mirrors these rules so that you see an error before any GEN is attached.</p>
+</section>
+
+<section id="api"><h2>Contract API</h2>
+<p>All amounts are wei (18 decimals) and travel as text in the JSON the views return. The app passes integers as numbers, the entry bond and prize as <code>bigint</code>.</p>
+<h3>Write methods</h3>
+<details class="method"><summary><span class="tag p">payable</span>create_round(title, mission, entry_bond, min_entries, max_entries, entry_window, play_window, min_fit, need_evidence) → int</summary><div class="body"><p>Opens a round. The attached value is the prize. The caller is the host. Returns the new round id (the app finds it with <code>rounds_of</code>).</p><p><b>Refused when:</b> any limit above is broken (messages in <a href="#errors">Messages</a>). A refused call keeps the attached GEN in the contract.</p></div></details>
+<details class="method"><summary><span class="tag p">payable</span>top_up(round_id)</summary><div class="body"><p>Host only, while the round is open. Adds the attached value to the prize.</p></div></details>
+<details class="method"><summary><span class="tag p">payable</span>enter(round_id, name, pitch, evidence_url) → int</summary><div class="body"><p>Enter an open round before its entry time ends. The attached value must equal the entry bond exactly. One entry per address; the host cannot enter. Returns the entry index.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>withdraw_entry(round_id)</summary><div class="body"><p>The entrant leaves an open round. The bond is credited back.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>remove_entry(round_id, entrant, reason)</summary><div class="body"><p>Host only, while open. Turns an entry away; the bond is credited back. <code>reason</code> is 3 to 160 characters.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>start_round(round_id)</summary><div class="body"><p>Closes entries and fixes the schedule. Needs the minimum entries. Anyone once the entry time is over or the round is full; the host at any time.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>cancel_round(round_id)</summary><div class="body"><p>Open rounds only. The host any time; anyone once the entry time is over without enough entries. Credits the prize to the host and each bond to its owner.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>play_next(round_id)</summary><div class="body"><p>Judges the next match of a playing round. Anyone can call it. May end <em>UNDETERMINED</em> (no change, retry at once). After an unreadable evidence page there is a two minute pause for that match.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>finalize_round(round_id)</summary><div class="body"><p>Ends a playing round once every match is played or the playing time is over. Credits every entry and the host.</p></div></details>
+<details class="method"><summary><span class="tag w">write</span>claim()</summary><div class="body"><p>Sends everything credited to the caller. Refused with "There is nothing to claim." when the credit is zero.</p></div></details>
+<h3>View methods (free to call)</h3>
+<table><tr><th>Method</th><th>Returns</th></tr>
+<tr><td><code>get_round(round_id)</code></td><td>One round with its entries and matches (JSON)</td></tr>
+<tr><td><code>list_rounds(offset, limit)</code></td><td>Rounds, newest first, without entries and matches</td></tr>
+<tr><td><code>rounds_of(who, offset, limit)</code></td><td>Rounds an address hosts or has entered</td></tr>
+<tr><td><code>get_match(round_id, index)</code></td><td>One match with the judge's stored review</td></tr>
+<tr><td><code>credit_of(who)</code></td><td>What the address can claim now (wei, text)</td></tr>
+<tr><td><code>schedule_of(entries)</code></td><td>Fixed match order for 2 to 8 entries as [a, b] pairs</td></tr>
+<tr><td><code>would_steer(text)</code></td><td>true if the text trips the steering check</td></tr>
+<tr><td><code>stats()</code></td><td>Counters and money totals</td></tr>
+<tr><td><code>solvency()</code></td><td>paid in, sent out, owed, locked, balanced, native balance, in_sync</td></tr>
+<tr><td><code>audit_books()</code></td><td>Recomputes the books from every round and credit</td></tr></table>
+<h3>Reading from JavaScript</h3>
+<pre><code>import { createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
+
+const client = createClient({ chain: studionet });
+const text = await client.readContract({
+  address: "0xdd842644E5fEaba5c4FDB28d97236b5B58C5C69c",
+  functionName: "get_round",
+  args: [0],
+});
+const round = JSON.parse(text);</code></pre>
+<h3>Writing through an EIP-6963 wallet</h3>
+<pre><code>const writer = createClient({
+  chain: studionet,
+  account: connectedAddress,
+  provider: selectedWallet.provider,   // from the EIP-6963 announcement
+});
+const hash = await writer.writeContract({
+  address, functionName: "enter",
+  args: [roundId, name, pitch, url],
+  value: entryBond,                    // bigint, exactly the bond
+});</code></pre>
+</section>
+
+<section id="errors"><h2>Messages &amp; errors</h2>
+<p>The contract refuses with plain sentences. The app shows the sentence when the receipt carries it.</p>
+<table><tr><th>Message</th><th>Meaning</th></tr>
+<tr><td>The title needs 3 to 60 characters. / The mission needs 30 to 1000 characters.</td><td>Text length after cleaning.</td></tr>
+<tr><td>The entry bond has to be at least 0.001 GEN.</td><td>Bond too small or too large.</td></tr>
+<tr><td>The round needs 3 to 8 entries, and the minimum cannot be above the maximum.</td><td>Entry counts.</td></tr>
+<tr><td>The entry / playing window has to be between 1 minute and 30 days.</td><td>Window out of range.</td></tr>
+<tr><td>The bar has to be between 0 and 90.</td><td>Bar out of range.</td></tr>
+<tr><td>Attach at least 0.002 GEN as the prize.</td><td>Prize too small.</td></tr>
+<tr><td>The prize is too small for this many matches.</td><td>One point would be worth nothing.</td></tr>
+<tr><td>The round is not open for entries. / The entry time is over. / The round is full.</td><td>Entering is not possible now.</td></tr>
+<tr><td>The host cannot enter their own round. / This address already has an entry in the round.</td><td>One entry per address; not the host.</td></tr>
+<tr><td>Attach exactly the entry bond.</td><td>Wrong value on <code>enter</code>.</td></tr>
+<tr><td>The name or the pitch tries to steer the judge.</td><td>The steering check matched.</td></tr>
+<tr><td>The evidence must be a single public http(s) link. / This round needs a link to evidence.</td><td>Link missing or not acceptable.</td></tr>
+<tr><td>That evidence page already backs another entry. / That pitch is already used by another entry.</td><td>Duplicates, even spelled differently.</td></tr>
+<tr><td>The round does not have enough entries yet. / The entry time is not over and the round is not full.</td><td><code>start_round</code> not allowed yet.</td></tr>
+<tr><td>Only the host can do that. / Only the host can cancel, unless…</td><td>Host-only calls.</td></tr>
+<tr><td>Matches are still being played. / The round is not being played.</td><td><code>finalize_round</code> or <code>play_next</code> in the wrong state.</td></tr>
+<tr><td>Wait two minutes before asking again.</td><td>Pause after an unreadable page.</td></tr>
+<tr><td>There is nothing to claim.</td><td>No credit for the caller.</td></tr></table>
+</section>
+
+<section id="quirks"><h2>Studionet quirks</h2>
+<div class="callout warn"><b>A refused payable call traps the GEN</b><p>If <code>create_round</code>, <code>enter</code> or <code>top_up</code> is refused, the GEN you attached stays in the contract's balance, outside its books, and <code>claim</code> cannot return it. The app therefore checks every field against the contract's rules, and runs <code>would_steer</code> on the name and pitch, before it ever asks your wallet to attach value. If you call the contract from your own scripts, do the same.</p></div>
+<div class="callout info"><b>UNDETERMINED is harmless</b><p>If <code>play_next</code> ends as UNDETERMINED, the validators could not agree under the strict comparison. No state changes and you can retry immediately. Only a match whose evidence page was unreadable (tries above 0) has the 120 second pause.</p></div>
+<div class="callout info"><b>About 500 requests an hour</b><p>Studionet rate limits the RPC. The app caches reads, refreshes slowly (and more slowly as the hour fills up), pauses when the tab is hidden, waits out a rate limit and retries reads once. The footer shows how many requests this browser has used in the last hour. Writes are never retried automatically.</p></div>
+<p>The contract's native balance can briefly be below its books after a <code>claim</code>, until the network finalises the transfer. The Ledger page explains which difference is normal and which one means trapped GEN.</p>
+</section>
+
+<section id="frontend"><h2>This web app</h2>
+<p>A static site: Vite builds nine plain HTML pages. There is no server and no framework. The only runtime dependencies are <code>genlayer-js</code> (pinned to 1.1.8), <code>viem</code> and three font packages.</p>
+<pre><code>frontend/
+  index.html rounds.html round.html create.html
+  account.html ledger.html docs.html demo.html 404.html
+  public/            images, logos, Mochi, demo video
+  src/config.js      contract address, chain, links, rule limits
+  src/lib/wallet.js  EIP-6963 discovery, connect, disconnect, switch
+  src/lib/chain.js   reads, writes, request budget, transaction polling
+  src/lib/validate.js  browser port of the contract's checks
+  src/lib/mock.js    demo mode: simulated contract + pretend wallet
+  src/lib/ui.js      header, banners, dialogs, spinners, 3D helpers
+  src/pages/*.js     one script per page</code></pre>
+<h3>Configuration</h3>
+<p>The contract address lives in <code>src/config.js</code>. It defaults to <code>0xdd842644E5fEaba5c4FDB28d97236b5B58C5C69c</code> and can be overridden at build time with <code>VITE_MATCHPLAY_ADDRESS</code>. Explorer link formats are in the same file.</p>
+<h3>Run it locally</h3>
+<pre><code>cd frontend
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # static files in dist/</code></pre>
+<h3>Demo mode</h3>
+<p>Open any page with <code>?demo=1</code>. The app swaps its network layer for an in-browser copy of the rules and announces a pretend EIP-6963 wallet that starts on the wrong network, so you can try connecting, switching, entering, hosting, judging and claiming without risk. State lives in your browser's local storage and the orange bar has <em>Reset</em> and <em>Exit</em> buttons.</p>
+</section>
+
+<section id="deploy"><h2>Deploy</h2>
+<p>Any static host works. For <b>Cloudflare Pages</b>: connect the repository, set the root directory to <code>frontend</code>, the build command to <code>npm run build</code> and the output directory to <code>dist</code>. All nine pages are listed in <code>vite.config.js</code> under <code>build.rollupOptions.input</code>, so each one is built and none returns 404. The built <code>404.html</code> is used by Pages as the custom not-found page. Cloudflare serves <code>/rounds.html</code> as <code>/rounds</code>; links inside the app work either way and a round link such as <code>round.html?id=3</code> keeps its query.</p>
+<p>Because the site is fully static, GitHub Pages, Netlify and Vercel work the same way.</p>
+</section>
+
+<section id="security"><h2>Security notes</h2>
+<ul><li>The app never asks for a private key or a seed phrase. Signing happens in your wallet.</li>
+<li>Everything shown from the contract (titles, pitches, links) is escaped before display, and evidence links open with <code>noopener nofollow</code>.</li>
+<li>Before a transaction the wallet shows the address and the value. Check that the value is the prize or the bond you expect.</li>
+<li>Studionet is a test network. GEN there has no market value, and Studionet can be reset by GenLayer.</li>
+<li>The judge is a language model. The two-order reading, the bar and the strict consensus make results more consistent, not infallible.</li></ul>
+</section>
+
+<section id="faq"><h2>FAQ</h2>
+<h3>Why are matches judged twice?</h3><p>Models can lean toward the first thing they read. Swapping the order and requiring the same winner removes much of that bias.</p>
+<h3>Can the host pick winners?</h3><p>No. The host can turn an entry away only while the round is open. After the start the schedule, the judge and the payout rules are fixed.</p>
+<h3>What if nobody runs the matches?</h3><p>When the playing time ends anyone can finish the round. Matches nobody ran earn nothing and the prize that was not earned goes back to the host. Bonds are returned.</p>
+<h3>Why did my wallet not ask me anything?</h3><p>Check that the wallet is unlocked and look for a pending prompt in its own window. The app waits for your answer.</p>
+<h3>Why do I see "Wrong network"?</h3><p>Your wallet is on another chain. Press <b>Switch network</b> in the bar or the pill.</p>
+<h3>The page says the Studionet rate limit was hit.</h3><p>Wait a minute. The app pauses by itself and retries.</p>
+</section>
+
+<section id="glossary"><h2>Glossary</h2>
+<table><tr><th>Term</th><th>Meaning</th></tr><tr><td>EIP-6963</td><td>Standard for pages to discover every installed wallet.</td></tr><tr><td>EIP-1193</td><td>The standard request interface of a wallet provider.</td></tr><tr><td>Intelligent Contract</td><td>A GenLayer contract that can call a language model and read the web, with validators agreeing on the result.</td></tr><tr><td>Validator</td><td>A GenLayer node that re-runs the leader's work and votes.</td></tr><tr><td>UNDETERMINED</td><td>A transaction status: validators did not agree, nothing changed.</td></tr><tr><td>Wei</td><td>The smallest unit: 1 GEN = 10<sup>18</sup> wei.</td></tr><tr><td>Mochi</td><td>GenLayer's cat mascot.</td></tr></table>
+</section>
+
+</article></div></main>
+<script type="module" src="./src/pages/docs.js"></script></body></html>

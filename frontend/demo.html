@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Video demo · Matchplay</title><meta name="description" content="A short walkthrough of Matchplay: connect a wallet, switch to Studionet, enter, host, judge and claim."><link rel="icon" href="./favicon.svg" type="image/svg+xml"></head>
+<body><main>
+<header class="page-head"><div class="wrap"><div><span class="kicker">Video demo</span><h1>A whole round, start to payout.</h1><p>Watch how to connect a wallet, switch to Studionet, enter a round, run the judge and claim winnings.</p></div><img class="mochi-float" src="./img/mochi-head.webp" alt="" width="110"></div></header>
+<section style="padding-top:36px"><div class="wrap grid" style="grid-template-columns:1.7fr 1fr;gap:30px;align-items:start">
+  <div><div class="video-card" data-video><video preload="none" playsinline controls poster="./media/poster.jpg" aria-label="Matchplay demo video"><source src="./media/matchplay-demo.mp4" type="video/mp4"></video><button class="play-cover" style="background-image:url(./media/poster.jpg)" aria-label="Play the demo video"><span class="play-btn"></span><span class="play-label">Play the walkthrough<small id="dur"></small></span></button></div>
+    <div class="info-box tiny" style="margin-top:16px"><b>About this recording.</b> It was captured in the app's demo mode: a pretend wallet and a simulated network, so no real GEN or transactions are involved. The screens and the steps are the real ones. Results on Studionet depend on the live judge.</div></div>
+  <aside class="card"><h3>Chapters</h3><ol class="chapters" id="chapters"></ol><div class="row" style="margin-top:18px"><a class="btn primary" href="./index.html?demo=1">Try demo mode yourself</a></div></aside>
+</div></section>
+<section style="padding-top:10px"><div class="wrap grid g3">
+  <div class="card feat reveal" data-tilt="6"><div class="ico">1</div><h3>No wallet needed</h3><p class="muted">Demo mode announces a pretend wallet through EIP-6963 that starts on the wrong network, so you see the real connect and switch flow.</p></div>
+  <div class="card feat reveal" data-tilt="6"><div class="ico">2</div><h3>Same screens</h3><p class="muted">Forms, checks, progress dialogs, judge reviews and the claim page are the pages you use on Studionet.</p></div>
+  <div class="card feat reveal" data-tilt="6"><div class="ico">3</div><h3>Safe to break</h3><p class="muted">Use <em>Reset demo data</em> in the orange bar any time to start over.</p></div>
+</div></section>
+</main><script type="module" src="./src/pages/demo.js"></script></body></html>
